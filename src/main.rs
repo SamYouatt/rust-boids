@@ -21,6 +21,7 @@ fn main() {
         .add_startup_system(setup.system())
         .add_startup_system(boid::spawn_boids.system())
         .add_system(pan_orbit_camera::pan_orbit_camera.system())
+        .add_system(boid::move_boids.system())
         .run();
 }
 

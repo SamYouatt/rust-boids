@@ -3,7 +3,13 @@ use rand::{prelude::StdRng, Rng, SeedableRng};
 
 pub struct Boid;
 
-pub fn move_boids() {}
+pub struct Velocity(Vec3);
+
+pub fn move_boids(time: Res<Time>, mut query: Query<(&mut Transform, &Boid, &Velocity)>) {
+    for (mut transform, _, velocity) in query.iter_mut() {
+        transform.translation += velocity.0 * time.delta_seconds();
+    }
+}
 
 pub fn spawn_boids(
     mut commands: Commands,
@@ -37,6 +43,12 @@ pub fn spawn_boids(
                 ),
                 ..Default::default()
             })
+            .insert(Boid)
+            .insert(Velocity(Vec3::new(
+                rng.gen_range(-1.0..1.0),
+                rng.gen_range(-1.0..1.0),
+                rng.gen_range(-1.0..1.0),
+            )))
             .insert(Wireframe);
     }
 }
