@@ -1,13 +1,10 @@
 use bevy::{
-    input::mouse::{MouseMotion, MouseWheel},
     prelude::*,
-    render::{
-        camera::PerspectiveProjection,
-        wireframe::{Wireframe, WireframePlugin},
-    },
+    render::wireframe::WireframePlugin,
     wgpu::{WgpuFeature, WgpuFeatures, WgpuOptions},
 };
 
+use rust_boids::boid;
 use rust_boids::pan_orbit_camera;
 
 fn main() {
@@ -18,9 +15,11 @@ fn main() {
             },
             ..Default::default()
         })
+        .insert_resource(ClearColor(Color::rgb_u8(240, 224, 182)))
         .add_plugins(DefaultPlugins)
         .add_plugin(WireframePlugin)
         .add_startup_system(setup.system())
+        .add_startup_system(boid::spawn_boids.system())
         .add_system(pan_orbit_camera::pan_orbit_camera.system())
         .run();
 }
@@ -41,13 +40,13 @@ fn setup(
         ..Default::default()
     });
 
-    // surrounding circles
+    // circle axes
     commands.spawn_bundle(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Icosphere {
             radius: 0.2,
             subdivisions: 4,
         })),
-        material: materials.add(Color::AQUAMARINE.into()),
+        material: materials.add(Color::RED.into()),
         transform: Transform::from_xyz(5.0, 0.0, 0.0),
         ..Default::default()
     });
@@ -57,7 +56,7 @@ fn setup(
             radius: 0.2,
             subdivisions: 4,
         })),
-        material: materials.add(Color::FUCHSIA.into()),
+        material: materials.add(Color::GREEN.into()),
         transform: Transform::from_xyz(0.0, 5.0, 0.0),
         ..Default::default()
     });
@@ -67,7 +66,7 @@ fn setup(
             radius: 0.2,
             subdivisions: 4,
         })),
-        material: materials.add(Color::YELLOW.into()),
+        material: materials.add(Color::BLUE.into()),
         transform: Transform::from_xyz(0.0, 0.0, 5.0),
         ..Default::default()
     });
