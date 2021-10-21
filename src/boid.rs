@@ -1,13 +1,21 @@
-use bevy::{prelude::*, render::wireframe::Wireframe};
+use bevy::prelude::*;
 use rand::{prelude::StdRng, Rng, SeedableRng};
 
 pub struct Boid;
 
 pub struct Velocity(Vec3);
 
-pub fn move_boids(time: Res<Time>, mut query: Query<(&mut Transform, &Boid, &Velocity)>) {
-    for (mut transform, _, velocity) in query.iter_mut() {
+pub fn move_boids(time: Res<Time>, mut query: Query<(&mut Transform, &Velocity), With<Boid>>) {
+    for (mut transform, velocity) in query.iter_mut() {
         transform.translation += velocity.0 * time.delta_seconds();
+
+        let v = velocity.0.normalize();
+        let side = Vec3::cross(Vec3::Y, v).normalize();
+        let up = Vec3::cross(v, side);
+        let m = Mat3::from_cols(side, up, v);
+        let q = Quat::from_rotation_mat3(&m);
+
+        transform.rotation = q;
     }
 }
 
@@ -41,6 +49,7 @@ pub fn spawn_boids(
                     rng.gen_range(-5.0..5.0),
                     rng.gen_range(-5.0..5.0),
                 ),
+                //transform: Transform::from_xyz(0.0, 0.0, 0.0),
                 ..Default::default()
             })
             .insert(Boid)
@@ -48,7 +57,6 @@ pub fn spawn_boids(
                 rng.gen_range(-1.0..1.0),
                 rng.gen_range(-1.0..1.0),
                 rng.gen_range(-1.0..1.0),
-            )))
-            .insert(Wireframe);
+            )));
     }
 }
